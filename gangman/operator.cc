@@ -11,16 +11,16 @@ double Operator::GetValue() {
   if (have_value) {
     return op_value;
   }
-  Forward();
-  have_value = true;
-  return op_value;
+//   Forward();
+//   have_value = true;
+//   return op_value;
 }
 
 double Operator::GetGrad() {
   if (have_value) {
     return op_grad;
   }
-  Backward();
-  have_value = true;
-  return op_grad;
+//   Backward();
+//   have_value = true;
+//   return op_grad;
 }
