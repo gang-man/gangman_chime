@@ -9,6 +9,7 @@
 #include <algorithm>
 
 namespace async_helper {
+
 using chime::platform::ThreadPool;
 
 class StaticGraph {
@@ -19,12 +20,17 @@ public:
 
   StaticGraph(ThreadPool *pool) { _pool = pool; }
 
-  ~StaticGraph() {
-    _pool->Wait();
-  }
+  ~StaticGraph() { _pool->Wait(); }
 
   void AddEdge(Operator *from, Operator *to) {
-    _edges.push_back(std::make_pair(from, to));
+    if (from == nullptr || to == nullptr) {
+      LOG(FATAL) << "AddEdge: nullptr operator";
+    }
+    if (std::find(_edges.begin(), _edges.end(), Edge(from, to)) !=
+        _edges.end()) {
+      LOG(FATAL) << "AddEdge: edge already exists";
+    }
+    _edges.push_back(Edge(from, to));
     if (std::find(_operators.begin(), _operators.end(), from) ==
         _operators.end()) {
       _operators.push_back(from);
@@ -35,19 +41,17 @@ public:
     }
   }
 
-  void Forward() {
-    //// Version 1:
-    // for (auto &edge : _edges) {
-    //   _pool->Schedule([&edge]() { edge.first->Compute(); });
-    //   _pool->Schedule([&edge, this]() {
-    //     while (!IsReadyToBeComputed(edge.second))
-    //       ;
-    //     edge.second->Compute();
-    //   });
-    // }
-    /******************************************************/
+  void AddOperator(Operator *op) {
+    if (op == nullptr)
+      LOG(FATAL) << "AddOperator: nullptr operator";
 
-    //// Version 2:
+    if (std::find(_operators.begin(), _operators.end(), op) ==
+        _operators.end()) {
+      _operators.push_back(op);
+    }
+  }
+
+  void Forward() {
     for (auto &op : _operators) {
       _pool->Schedule([op, this]() {
         while (!IsReadyToBeComputed(op))
@@ -71,7 +75,11 @@ public:
     return true;
   }
 
-private:
+  void Clear() {
+    _edges.clear();
+    _operators.clear();
+  }
+
   OperatorList GetFathers(Operator *op) {
     OperatorList fathers;
     for (auto &edge : _edges) {
@@ -86,6 +94,9 @@ private:
   EdgeList _edges;
   OperatorList _operators;
 };
+
+StaticGraph *GetDefaultStaticGraph();
+void SetDefaultStaticGraph(StaticGraph *graph);
 
 } // namespace async_helper
 
