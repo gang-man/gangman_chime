@@ -2,46 +2,33 @@
 #include "chunk.h"
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <iostream>
 #include <math.h>
 #include <vector>
 
-std::vector<Chunk> chunks;
-std::vector<Bin> bins;
-
 int main() {
-  for (int i = 7; i < 10; i++) {
-    Chunk chunk(i);
-    chunks.push_back(chunk);
-  }
 
-  chunks.push_back(Chunk(5));
-  chunks.push_back(Chunk(4));
-  chunks.push_back(Chunk(16));
+  // std::cout << (2 != 0) << std::endl;
+  // void *ptr = malloc((2560100010000000000));
+  // while(ptr == nullptr){
 
+  //   std::cout << "NULL" << std::endl;
+  // }
+  // BFCAllocator bfc;
+  // bfc.allocate(256);
+  int a = 1;
+  int b = 2;
+  int c = 3;
+  int d = 4;
+  std::vector<int *> v;
+  v.push_back(&a);
+  v.push_back(&b);
+  v.push_back(&c);
 
-  std::sort(chunks.begin(), chunks.end(),
-            [](Chunk &a, Chunk &b) { return a.get_size() < b.get_size(); });
+  int *temp = v[0];
+  std::cout << *v[0] << "+" << *v[1] << *v[2] << std::endl;
 
-  for (int i = 0; i < chunks.size(); i++) {
-    int bin_size = floor((log(chunks[i].get_size())/log(2)));
-    Bin temp = Bin(bin_size);
-    temp.SetInitChunkIndex(i);
-
-    while(i < chunks.size() && chunks[i+1].get_size() < pow(2, bin_size +
-    1)){
-        i++;
-
-    }
-    temp.SetEndChunkIndex(i);
-    bins.push_back(temp);
-    // j++;
-  }
-  
-  std::cout << bins.size() << std::endl;
-  std::cout << bins[0].GetBinSize() << std::endl;
-  std::cout << bins[1].GetBinSize() << std::endl;
-  std::cout << bins[2].GetBinSize() << std::endl;
-  std::cout << chunks.size() << std::endl;
-
+  v.insert(v.begin() + 1, &d);
+  std::cout << *v[0] << "+" << *v[1] << *v[2] << std::endl;
 }
